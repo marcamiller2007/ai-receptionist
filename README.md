@@ -98,4 +98,3 @@ DATABASE_URL=postgresql://username:password@hostname:5432/database_name
 * **Database Freezes**: Ensure you are using `await connection.execute(...)` inside your tools. Synchronous database queries will block the event loop and cause the call to drop audio.
 * **Audio Stuttering**: Ensure your Uvicorn server isn't running other synchronous blocking tasks. The entire pipeline must remain `async`.
 * **503 Gemini Errors**: Google endpoints can occasionally experience high traffic. The code handles this gracefully, but if persistent, swap the model to an older version (e.g., `gemini-2.0-flash`).
-# ai-receptionist
