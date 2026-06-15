@@ -1,6 +1,6 @@
-# AI Clinic Survey Voice Agent ("Janet Williams")
+# AI Receptionist Voice Agent ("Jennifer Marsh")
 
-A fully asynchronous, real-time conversational AI voice agent designed to call health clinics and negotiate cash-pay pricing for outpatient procedures. The agent utilizes a seamless, low-latency pipeline to listen, think, speak, and securely log data to a PostgreSQL database just like a human assistant.
+A fully asynchronous, real-time conversational AI voice agent designed to Receive all incoming calls and manage them according to its system prompt. Jennifer can schedule appointments by interacting with a calendar API. Jennifer can also transfer calls to a human. The goal of Jennifer is to cut down the volume of calls that get to a human receptionist.
 
 ## 🚀 Key Features
 
@@ -49,17 +49,7 @@ Ensure you are installing the modern v5+ Deepgram SDK, the new Google GenAI SDK,
 pip install fastapi uvicorn websockets twilio deepgram-sdk google-genai elevenlabs python-dotenv certifi asyncpg
 ```
 
-### 3. Database Initialization
-Connect to your PostgreSQL database and execute the following SQL command to create the necessary table for the AI to push data to:
-```sql
-CREATE TABLE procedure_rates (
-    id SERIAL PRIMARY KEY, 
-    procedure_name VARCHAR(255), 
-    price NUMERIC
-);
-```
-
-### 4. Environment Variables
+### 3. Environment Variables
 Create a `.env` file in the root directory and add your keys and database connection string:
 ```env
 DEEPGRAM_API_KEY=your_deepgram_key_here
