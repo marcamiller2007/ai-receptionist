@@ -1,0 +1,11 @@
+fastapi
+python-multipart
+uvicorn
+websockets
+twilio
+deepgram-sdk
+google-genai
+elevenlabs
+python-dotenv
+certifi
+asyncpg

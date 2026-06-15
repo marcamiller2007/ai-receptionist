@@ -1,0 +1,28 @@
+# environments
+env/
+venv/
+.venv/
+
+# security
+.env
+*.env
+
+# OS
+.DS_Store
+.DS_Store?
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Python standard ignore
+*.egg-info/
+dist/
+build/
