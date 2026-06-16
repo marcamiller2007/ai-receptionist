@@ -60,29 +60,29 @@ async def say_message(queue: asyncio.Queue, stream_sid, message: str, transcript
     transcript.append("[Gemini] " + message)
 
     # create an audio stream
-    audio_stream = elevenlabs_client.text_to_speech.convert(
-        voice_id="4hdsj8ptPYDuDJIlFNOe", # This is "Rachel", a standard ElevenLabs voice
-        output_format="ulaw_8000",
-        text=message,
-        model_id="eleven_flash_v2_5", # The fastest model for real-time
-    )
-
-    async for chunk in audio_stream:
-        if chunk:
-            # encode the bytes into a string
-            audio_payload = base64.b64encode(chunk).decode('utf-8')
-
-            # Make readible for Twilio
-            media_message = {
-                "event": "media",
-                "streamSid": stream_sid,
-                "media": {
-                    "payload": audio_payload
-                }
-            }
-
-            # Add to Twilio Queue
-            queue.put_nowait(json.dumps(media_message))
+#    audio_stream = elevenlabs_client.text_to_speech.convert(
+#        voice_id="4hdsj8ptPYDuDJIlFNOe", # This is "Rachel", a standard ElevenLabs voice
+#        output_format="ulaw_8000",
+#        text=message,
+#        model_id="eleven_flash_v2_5", # The fastest model for real-time
+#    )
+#
+#    async for chunk in audio_stream:
+#        if chunk:
+#            # encode the bytes into a string
+#            audio_payload = base64.b64encode(chunk).decode('utf-8')
+#
+#            # Make readible for Twilio
+#            media_message = {
+#                "event": "media",
+#                "streamSid": stream_sid,
+#                "media": {
+#                    "payload": audio_payload
+#                }
+#            }
+#
+#            # Add to Twilio Queue
+#            queue.put_nowait(json.dumps(media_message))
 
 # initialize app
 app = FastAPI()
