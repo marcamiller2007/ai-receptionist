@@ -20,10 +20,6 @@ from google.genai import types
 import asyncio
 from elevenlabs.client import AsyncElevenLabs
 
-import asyncpg
-from asyncpg import Pool
-from contextlib import asynccontextmanager
-
 load_dotenv()
 
 # Retry policy for failed queries
@@ -88,38 +84,8 @@ async def say_message(queue: asyncio.Queue, stream_sid, message: str, transcript
             # Add to Twilio Queue
             queue.put_nowait(json.dumps(media_message))
 
-# Database context
-db_pool: Pool | None = None
-
-# Initialize the Database context for the rest of the server
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    global db_pool
-
-    try:
-        db_pool = await asyncpg.create_pool(
-            user=os.getenv("DB_USER", "postgres"),
-            password=os.getenv("DB_PASSWORD"),
-            host=os.getenv("DB_HOST", "127.0.0.1"),
-            port=int(os.getenv("DB_PORT", 5432)),
-            database=os.getenv("DB_NAME"),
-            min_size=10,
-            max_size=20,
-            ssl=True
-        )
-        print("[Database] Database connection pool initialized.")
-    except Exception as e:
-        print(f"[Database] Error connecting: {e}")
-        raise e
-
-    yield
-
-    if db_pool:
-        await db_pool.close()
-        print("[Database] Database connection pool gracefully shut down.")
-
 # initialize app
-app = FastAPI(lifespan=lifespan)
+app = FastAPI()
 
 @app.get("/")
 def read_route():
@@ -187,18 +153,10 @@ async def websocket_endpoint(websocket: WebSocket):
     # Recieve the dynamic info from XML
     custom_params = start_msg['start'].get("customParameters", {})
 
-    clinic = custom_params.get("clinic", "N/A")
-    clinic_id = custom_params.get("clinic_id", "N/A")
-    state = custom_params.get("state", "N/A")
-    city = custom_params.get("city", "N/A")
-    procedure = custom_params.get("procedure", "N/A")
-    cpt_code = custom_params.get("cpt", "N/A")
     call_id = custom_params.get("call_id", "N/A")
 
     # to_phone = custom_params.get("to_phone", "N/A")
     from_phone = custom_params.get("from_phone", "N/A")
-
-    print(f"Clinic: {clinic} ({clinic_id})\nLocation: {city}, {state}\nProcedure: {procedure} : {cpt_code}")
 
     # build the System Prompt
     system_prompt = f"""
