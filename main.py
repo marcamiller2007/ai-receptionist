@@ -175,7 +175,7 @@ async def websocket_endpoint(websocket: WebSocket):
 
     ### Chronological Steps:
     1. Greeting: Greet the customer politely and ask what they are calling for. Complete this step as soon as the call is live, do not wait for the caller to say something.
-    2. The Request: Ask if there is anything you can do for them.
+    2. The Request: The caller will ask you for something. To the best of your ability you will fulfill their request.
     3. Polite Turn-Taking: Always be polite and wait completely until the other person stops talking before you begin speaking.
 
     ## 4. VOICE & AUDIO GUARDRAILS (CRITICAL FOR LIVE API)
@@ -320,6 +320,8 @@ async def websocket_endpoint(websocket: WebSocket):
         # Binds the Deepgram event Listener to our function, then creates a background task
         dg_connection.on(EventType.MESSAGE, on_message)
         listener_task = asyncio.create_task(dg_connection.start_listening())
+
+        await say_message(outbound_queue, stream_sid, message="Hello, thank you for calling! My name is Jennifer, how can I help you?", transcript=full_transcript)
 
         # Event checking
         try:
