@@ -26,7 +26,7 @@ def schedule_event(
             "language": "en",
             "email": email
         },
-        "eventTypeId": event_id,
+        "eventTypeId": 6053276,
     }
 
     headers = {

@@ -313,6 +313,8 @@ async def websocket_endpoint(websocket: WebSocket):
 
         response = cal_lib.get_schedule(start=start, end=end)
 
+        print(response)
+
         return str(response)
     # END TOOLS
 
@@ -365,10 +367,10 @@ async def websocket_endpoint(websocket: WebSocket):
                     if not final_user_speech.strip():
                         return
 
-                    print(f"[You] {final_user_speech}")
+                    print(f"[Customer] {final_user_speech}")
 
                     # Add clinic text to the transcript
-                    full_transcript.append("[Clinic] " + str(final_user_speech))
+                    full_transcript.append("[Customer] " + str(final_user_speech))
 
                     # Query Gemini for a response
                     try:
