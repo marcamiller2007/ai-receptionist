@@ -8,19 +8,25 @@ load_dotenv()
 api_key: str = os.getenv("CAL_API_KEY", "N/A")
 authorization: str = "Bearer " + api_key
 
-def schedule_event() -> dict:
+def schedule_event(
+    event_id: str,
+    start: str,
+    name: str,
+    phone: str,
+    email: str
+) -> dict:
     url = "https://api.cal.com/v2/bookings"
 
     payload = {
-        "start": "2026-06-19T16:00:00Z",
+        "start": start,
         "attendee": {
-            "name": "John Doe",
+            "name": name,
             "timeZone": "America/Chicago",
-            "phoneNumber": "+15126387372",
+            "phoneNumber": phone,
             "language": "en",
-            "email": "marcm6530@gmail.com"
+            "email": email
         },
-        "eventTypeId": 6053276,
+        "eventTypeId": event_id,
     }
 
     headers = {
@@ -33,8 +39,21 @@ def schedule_event() -> dict:
 
     return response.json()
 
-def get_schedule() -> dict:
-    url: str = "https://api.cal.com/v2/slots?eventTypeId=6053276&start=2026-06-19&end=2026-06-19&timeZone=America/Chicago"
+def get_schedule(
+    day: str = "N/A",
+    start: str = "N/A",
+    end: str = "N/A"
+) -> dict:
+    if day == "N/A" and (start == "N/A" or end == "N/A"):
+        return {
+            "Error": 403,
+            "description": "Invalid Arguments"
+        }
+
+    if day != "N/A":
+        url: str = f"https://api.cal.com/v2/slots?eventTypeId=6053276&start={day}&end={day}&timeZone=America/Chicago"
+    else:
+        url: str = f"https://api.cal.com/v2/slots?eventTypeId=6053276&start={start}&end={end}&timeZone=America/Chicago"
 
     headers: dict = {
         "cal-api-version": "2024-09-04",
@@ -45,11 +64,9 @@ def get_schedule() -> dict:
 
     return response.json()
 
-
-
 try:
     #response = schedule_event()
-    response = get_schedule()
+    response = get_schedule(day="2026-06-19", start="")
 
     print(response)
 except Exception as e:
