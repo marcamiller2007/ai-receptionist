@@ -37,6 +37,7 @@ def schedule_event(
 
     response = requests.post(url, json=payload, headers=headers)
 
+    print(response)
     return response.json()
 
 def get_schedule(

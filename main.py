@@ -279,6 +279,9 @@ async def websocket_endpoint(websocket: WebSocket):
         name: The full name of the customer (First and Last) correctly spelled
         phone: The customer's phone number, including area code and country code appended
         email: The customer's email address that you have confirmed
+
+        SPECIAL INSTRUCTIONS:
+        Before attempting to call this tool, repeat the customer's information make to them by spelling each item out and after confirming call the tool.
         """
 
         response: dict = cal_lib.schedule_event(event_id="6053276", start=start, name=name, phone=phone, email=email)
