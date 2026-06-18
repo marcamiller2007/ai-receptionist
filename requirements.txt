@@ -9,3 +9,4 @@ elevenlabs
 python-dotenv
 certifi
 asyncpg
+requests
