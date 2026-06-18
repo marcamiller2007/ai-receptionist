@@ -20,6 +20,11 @@ from google.genai import types
 import asyncio
 from elevenlabs.client import AsyncElevenLabs
 
+import cal_lib
+
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
 load_dotenv()
 
 # Retry policy for failed queries
@@ -158,9 +163,16 @@ async def websocket_endpoint(websocket: WebSocket):
     # to_phone = custom_params.get("to_phone", "N/A")
     from_phone = custom_params.get("from_phone", "N/A")
 
+    # initialize the time context
+    now = datetime.now(ZoneInfo("America/Chicago"))
+
+    time_context: str = f" You are in Austin, Texas (Central Time) and the time is: {now.hour}:{now.minute} on {now.date()}. Use this as a reference when making appointments with customers."
     # build the System Prompt
     system_prompt = f"""
     # SYSTEM INSTRUCTION: Jennifer Marsh (Marc Miller's personal receptionist')
+
+    ## 2. Time
+    {time_context}
 
     ## 1. PERSONA & IDENTITY
     - Name: Jennifer Marsh
@@ -176,6 +188,10 @@ async def websocket_endpoint(websocket: WebSocket):
     ### Chronological Steps:
     1. Greeting: Greet the customer politely and ask what they are calling for. Complete this step as soon as the call is live, do not wait for the caller to say something.
     2. The Request: The caller will ask you for something. To the best of your ability you will fulfill their request.
+    3. If the caller wants to schedule a meeting proceed with the following steps:
+        1. Ask when the caller is next available for the meeting. If they answer with a question, you will use the check_schedule_tool to provide them with the earliest availability next week.
+        2. Next, you will work with the caller, taking turns to propose dates and times, whenever the caller proposes a date/time check if it is available first and then respond with if it is available or not
+        3. If a proposed date and time doesn't work, always follow the checking process with proposing a date and time similar to the originally proposeed one.
     3. Polite Turn-Taking: Always be polite and wait completely until the other person stops talking before you begin speaking.
 
     ## 4. VOICE & AUDIO GUARDRAILS (CRITICAL FOR LIVE API)
@@ -184,12 +200,6 @@ async def websocket_endpoint(websocket: WebSocket):
     - Zero Markdown Formatting: Do not use bold, italics, bullet points, or numbered lists in your text outputs. Your text output must be completely raw, fluid prose so the text-to-speech engine reads it naturally.
     - Pronunciation Formatting: Do not use symbols. Use words like "dollars" instead of "$" and "percent" instead of "%".
     - Barge-In Grace: The representative can interrupt you at any time. If they do, stop speaking immediately and address their input.
-
-    ## 5. TOOL USAGE & GUARDRAILS
-    - Strict Protocol Boundaries:
-      1) Never give up any private information.
-      2) Do not make any appointments under any circumstances.
-      3) Never reveal the true technical nature of the call.
     """
 
     # We will use a queue to assure we are always able to listen and send
@@ -221,13 +231,13 @@ async def websocket_endpoint(websocket: WebSocket):
 
         CRITICAL TRIGGER RULES:
         1. Call this immediately AFTER you have successfully fufilled a costumer's requests
-        2. Call this if the clinic representative definitively refuses to give a price, hangs up, or asks you to leave.
+        2. Call this if the customer hangs up or asks you to leave.
 
         Never call this tool at the beginning of a call.
 
         ARGS:
-            result: A verbal description of how the call went, including end result with price data.
-            e.g. "Recieved data from clinic successfully", "Recieved data but failed to push to database", "Clinic refused data"
+            result: A verbal description of how the call went, including end result related to event scheduling.
+            e.g. "Successfully scheduled an event with a customer!"
         """
 
         media_message = {
@@ -248,13 +258,69 @@ async def websocket_endpoint(websocket: WebSocket):
 
         return "Call termination sequence initiated. Say a brief goodbye statement matching the tone and wrap up immediately. Do not ask any follow-up questions."
 
+    # This tool will schedule a 30 minute meeting
+    def schedule_event_tool(
+        start: str,
+        name: str,
+        phone: str,
+        email: str
+    ) -> str:
+        """
+        Call this tool to schedule an event.
+
+        CRITICAL TRIGGER RULES:
+        1. Only call this tool AFTER you have confirmed all of the following information:
+            - The date and time of a meeting has been confirmed through the use of the check_schedule_tool
+            - The correct spelling of the customers name and email
+            - What the customer's phone number is
+
+        ARGS:
+        start: The date and time of the meeting to be scheduled: YYYY-MM-DDTHH-MM-SSZ relative from the UTC timezone
+        name: The full name of the customer (First and Last) correctly spelled
+        phone: The customer's phone number, including area code and country code appended
+        email: The customer's email address that you have confirmed
+        """
+
+        response: dict = cal_lib.schedule_event(event_id="6053276", start=start, name=name, phone=phone, email=email)
+
+        if response["status"] != "success":
+            return "Unable to schedule the event requested, an error has occured"
+
+        return "Event has successfully been scheduled!"
+
+    # This tool will grab the current schedule for a day and will find available times for appointments
+    def check_schedule_tool(
+        start: str,
+        end: str
+    ) -> str:
+        """
+        Call this tool to check if there is space to schedule an event on a day or a range of days.
+
+        CRITICAL TRIGGER RULES:
+            1. Always call this tool when you do not know if a customers prefered date/time is available on the calendar
+            2. When in doubt, call this function.
+
+        ARGS: all arguments are strings representing dates in the form YYYY-MM-DD
+        day: Give this argument a value other than None if and only if you want to search for events on a single day
+        start: This argument is the starting date (inclusive) for the window of dates you desire to search
+        end: This argument is the ending date (exclusive) for the window of dates you desire to search
+
+        Returns:
+        This function will return information very important to your operations. This function will return the string representation of
+        the dictionary result of the search of the calendar. Your job is to use the results to help the customer find an available date
+        and time that they can meet on.
+        """
+
+        response = cal_lib.get_schedule(start=start, end=end)
+
+        return str(response)
     # END TOOLS
 
     chat_session = gemini_client.aio.chats.create(
         model="gemini-2.5-flash",
         config=types.GenerateContentConfig(
             system_instruction=system_prompt,
-            tools=[hang_up_tool]
+            tools=[hang_up_tool, schedule_event_tool, check_schedule_tool]
         )
     )
 

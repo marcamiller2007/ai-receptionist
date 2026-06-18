@@ -64,10 +64,15 @@ def get_schedule(
 
     return response.json()
 
-try:
+#try:
     #response = schedule_event()
-    response = get_schedule(day="2026-06-19", start="")
+    #response = get_schedule(day="2026-06-19", start="")
 
-    print(response)
-except Exception as e:
-    print(f"ERROR : {e}")
+    #print(response)
+#except Exception as e:
+    #print(f"ERROR : {e}")
+
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
+print(datetime.now(ZoneInfo("America/Chicago")).date())
