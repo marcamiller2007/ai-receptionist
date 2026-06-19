@@ -357,7 +357,7 @@ async def websocket_endpoint(websocket: WebSocket):
 
         ARGS:
         to_phone: This is a string representation of the phone number you will transfer the call to. It will include both area and country codes (with +), and will not have any parenthesis or hyphens.
-        reason: Astring describing the reason for transfering the current call. Be breif.
+        reason: Astring describing the reason for transfering the current call. Be brief.
         """
 
         account_sid: str = os.getenv("TWILIO_ACCOUNT_SID", "N/A")
@@ -437,10 +437,10 @@ async def websocket_endpoint(websocket: WebSocket):
                     if not final_user_speech.strip():
                         return
 
-                    print(f"[Customer] {final_user_speech}")
+                    print(f"[{from_phone}] {final_user_speech}")
 
                     # Add clinic text to the transcript
-                    full_transcript.append("[Customer] " + str(final_user_speech))
+                    full_transcript.append(f"[{from_phone}] {str(final_user_speech)}")
 
                     # Query Gemini for a response
                     try:
