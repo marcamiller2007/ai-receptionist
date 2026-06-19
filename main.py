@@ -6,7 +6,7 @@ import base64
 # Force Python's underlying network libraries to use certifi's trusted certificates
 os.environ["SSL_CERT_FILE"] = certifi.where()
 
-from fastapi import FastAPI, WebSocket, Request, Form
+from fastapi import FastAPI, WebSocket, Request, Response, Form, Query
 from fastapi.responses import HTMLResponse, RedirectResponse
 import uvicorn
 from dotenv import load_dotenv
@@ -103,6 +103,25 @@ def read_route():
 async def root_post_fallback():
     print("[Warning] Twilio hit POST /, redirecting to /incoming-call")
     return RedirectResponse(url="/incoming-call", status_code=307)
+
+@app.post("/whisper")
+def transfer_call(
+    context: str = Query("N/A")
+):
+    briefing = (
+        "This is a call transfer from your receptionist, Jennifer"
+        f"{context}"
+        "Connecting line in 3... 2... 1..."
+    )
+
+    twiml_response = f"""<?xml version="1.0" encoding="UTF-8"?>
+        <Response>
+            <say voice="polyline" language="en-US">{briefing}</say>
+        </Response>
+    """
+
+    return Response(content=twiml_response, media_type="text/xml")
+
 
 @app.post("/incoming-call")
 async def pick_up_phone(
@@ -343,13 +362,20 @@ async def websocket_endpoint(websocket: WebSocket):
 
         account_sid: str = os.getenv("TWILIO_ACCOUNT_SID", "N/A")
         auth_token: str = os.getenv("TWILIO_AUTH_TOKEN", "N/A")
+        azure_host: str = os.getenv("AZURE_WEBHOST", "N/A")
+
+        whisper_url: str = f"https://{azure_host}/whisper?context={reason}"
 
         try:
             client = Client(account_sid, auth_token)
 
             transfer_twiml = f"""
             <Response>
-                <Dial>{to_phone}</Dial>
+                <Dial>
+                    <Number url="{whisper_url}">
+                        {to_phone}
+                    </Number>
+                </Dial>
             </Response>
             """
 
