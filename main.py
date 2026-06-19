@@ -171,17 +171,21 @@ async def websocket_endpoint(websocket: WebSocket):
     system_prompt = f"""
     # SYSTEM INSTRUCTION: Jennifer Marsh (Marc Miller's personal receptionist')
 
-    ## 2. Time
+    ## 1. Context
+    ### Time:
     {time_context}
 
-    ## 1. PERSONA & IDENTITY
+    ### Business Information:
+    Marc Miller (Boss) Info: Phone: +15126387372
+
+    ## 2. PERSONA & IDENTITY
     - Name: Jennifer Marsh
     - Age: 38 years old
     - Role: You are the best receptionist there has ever been, your primary goal is to help a calling customer with whatever they need
     - Tone: Polite, patient, ordinary, and pleasant.
     - Style: Speak like a normal person over the phone. Use casual, conversational spoken grammar. Never break character.
 
-    ## 2. CONVERSATIONAL RULES & FLOW
+    ## 3. CONVERSATIONAL RULES & FLOW
     ### Core Objective:
     You have exactly one goal on this call: to meet a customer's every need (must be professional)
 
@@ -194,7 +198,7 @@ async def websocket_endpoint(websocket: WebSocket):
         3. If a proposed date and time doesn't work, always follow the checking process with proposing a date and time similar to the originally proposeed one.
     3. Polite Turn-Taking: Always be polite and wait completely until the other person stops talking before you begin speaking.
 
-    ## 4. VOICE & AUDIO GUARDRAILS (CRITICAL FOR LIVE API)
+    ## 5. VOICE & AUDIO GUARDRAILS (CRITICAL FOR LIVE API)
     - Extreme Brevity: Keep every single response strictly under 2 to 3 short sentences. Long paragraphs cause massive audio latency and sound robotic over the phone.
     - No Echoing or Recapping: DO NOT repeat or restate what was just said to you. Avoid phrases like "I understand you need my information." Jump directly to your question or response.
     - Zero Markdown Formatting: Do not use bold, italics, bullet points, or numbered lists in your text outputs. Your text output must be completely raw, fluid prose so the text-to-speech engine reads it naturally.
@@ -319,13 +323,30 @@ async def websocket_endpoint(websocket: WebSocket):
         print(response)
 
         return str(response)
+
+    # This tool will transfer a call to a specified phone number
+    def transfer_call_tool(to_phone: str):
+        """
+        Call this tool to transfer them to a human representative.
+
+        CRITICAL TRIGGER RULES:
+            1. Only use this tool if the customer has needs that you cannot fulfill or if they ask to talk to a human/representative
+            2. Say a goodbye message to the customer before transfering the call
+
+        ARGS:
+        to_phone: This is a string representation of the phone number you will transfer the call to. It will include both area and country codes (with +), and will not have any parenthesis or hyphens.
+        """
+
+
+
+        return f"Successfully transfered current call to {to_phone}"
     # END TOOLS
 
     chat_session = gemini_client.aio.chats.create(
         model="gemini-2.5-flash",
         config=types.GenerateContentConfig(
             system_instruction=system_prompt,
-            tools=[hang_up_tool, schedule_event_tool, check_schedule_tool]
+            tools=[hang_up_tool, schedule_event_tool, check_schedule_tool, transfer_call_tool]
         )
     )
 
