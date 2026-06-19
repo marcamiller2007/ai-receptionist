@@ -20,6 +20,8 @@ from google.genai import types
 import asyncio
 from elevenlabs.client import AsyncElevenLabs
 
+from twilio.rest import Client
+
 import cal_lib
 
 from datetime import datetime
@@ -326,7 +328,7 @@ async def websocket_endpoint(websocket: WebSocket):
         return str(response)
 
     # This tool will transfer a call to a specified phone number
-    def transfer_call_tool(to_phone: str):
+    def transfer_call_tool(to_phone: str, reason: str):
         """
         Call this tool to transfer them to a human representative.
 
@@ -336,8 +338,25 @@ async def websocket_endpoint(websocket: WebSocket):
 
         ARGS:
         to_phone: This is a string representation of the phone number you will transfer the call to. It will include both area and country codes (with +), and will not have any parenthesis or hyphens.
+        reason: Astring describing the reason for transfering the current call. Be breif.
         """
 
+        account_sid: str = os.getenv("TWILIO_ACCOUNT_SID", "N/A")
+        auth_token: str = os.getenv("TWILIO_AUTH_TOKEN", "N/A")
+
+        try:
+            client = Client(account_sid, auth_token)
+
+            transfer_twiml = f"""
+            <Response>
+                <Dial>{to_phone}</Dial>
+            </Response>
+            """
+
+            client.calls(stream_sid).update(twiml=transfer_twiml)
+        except Exception as e:
+            print(f"failure while tranfering call: {e}")
+            return f"There has been an error: {e}"
 
 
         return f"Successfully transfered current call to {to_phone}"
