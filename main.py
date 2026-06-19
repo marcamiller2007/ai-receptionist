@@ -179,8 +179,6 @@ async def websocket_endpoint(websocket: WebSocket):
     # Recieve the dynamic info from XML
     custom_params = start_msg['start'].get("customParameters", {})
 
-    call_id = custom_params.get("call_id", "N/A")
-
     # to_phone = custom_params.get("to_phone", "N/A")
     from_phone = custom_params.get("from_phone", "N/A")
 
