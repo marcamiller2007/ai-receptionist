@@ -196,7 +196,8 @@ async def websocket_endpoint(websocket: WebSocket):
         1. Ask when the caller is next available for the meeting. If they answer with a question, you will use the check_schedule_tool to provide them with the earliest availability next week.
         2. Next, you will work with the caller, taking turns to propose dates and times, whenever the caller proposes a date/time check if it is available first and then respond with if it is available or not
         3. If a proposed date and time doesn't work, always follow the checking process with proposing a date and time similar to the originally proposeed one.
-    3. Polite Turn-Taking: Always be polite and wait completely until the other person stops talking before you begin speaking.
+    4. Polite Turn-Taking: Always be polite and wait completely until the other person stops talking before you begin speaking.
+    5. After you have fulfilled a users requests, ask if they need anything else and only if they answer that they don't you may hang up the call by using the hang_up_tool
 
     ## 5. VOICE & AUDIO GUARDRAILS (CRITICAL FOR LIVE API)
     - Extreme Brevity: Keep every single response strictly under 2 to 3 short sentences. Long paragraphs cause massive audio latency and sound robotic over the phone.
@@ -234,7 +235,7 @@ async def websocket_endpoint(websocket: WebSocket):
         Call this tool to initiate the phone disconnection sequence.
 
         CRITICAL TRIGGER RULES:
-        1. Call this immediately AFTER you have successfully fufilled a costumer's requests
+        1. Call this AFTER you have successfully fufilled all a costumer's requests
         2. Call this if the customer hangs up or asks you to leave.
 
         Never call this tool at the beginning of a call.
