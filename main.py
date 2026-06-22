@@ -189,11 +189,14 @@ async def websocket_endpoint(websocket: WebSocket):
     now = datetime.now(ZoneInfo("America/Chicago"))
 
     time_context: str = f" You are in Austin, Texas (Central Time) and the time is: {now.hour}:{now.minute} on {now.date()}. Use this as a reference when making appointments with customers."
+    greeting_msg: str = "Hi there! Thanks for calling the AI Receptionist demo built by Marc Miller. I am a voice assistant designed to help local businesses capture missed call revenue. Would you like to simulate a mock booking, or just ask me a few questions about how I work?"
 
     conversation_context: list[types.ContentOrDict] = [
         types.Content(role="user", parts=[types.Part.from_text(text=time_context)]),
         types.Content(role="user", parts=[types.Part.from_text(text="Your creator's name is Marc Miller, he is a software developer that is attending Purdue university for his undergrad")]),
-        types.Content(role="model", parts=[types.Part.from_text(text="Now I know the current date and time and can use it to schedule meetings. I also know who I am answering this call on behalf of.")])
+        types.Content(role="model", parts=[types.Part.from_text(text="Now I know the current date and time and can use it to schedule meetings. I also know who I am answering this call on behalf of.")]),
+        types.Content(role="model", parts=[types.Part.from_text(text=greeting_msg)]),
+        types.Content(role="user", parts=[types.Part.from_text(text=f"My phone number is {from_phone}")])
     ]
 
     with open("./system_prompt.md", "r") as file:
@@ -246,7 +249,7 @@ async def websocket_endpoint(websocket: WebSocket):
         }
 
         # Say goodbye
-        await say_message(outbound_queue, stream_sid, message="Thank you for your help! have a great day, goodbye.", transcript=full_transcript)
+        await say_message(outbound_queue, stream_sid, message="Thank you for your time! have a great day, goodbye.", transcript=full_transcript)
 
         # send the encoded audio back to Twilio
         outbound_queue.put_nowait(json.dumps(media_message))
@@ -279,6 +282,7 @@ async def websocket_endpoint(websocket: WebSocket):
         SPECIAL INSTRUCTIONS:
         Before attempting to call this tool, repeat the customer's information make to them by spelling each item out and after confirming call the tool.
         A caller may only schedule one meeting per call.
+        You should not ask for a caller's phone number for this.
         """
         global event_uid
 
@@ -436,7 +440,7 @@ async def websocket_endpoint(websocket: WebSocket):
         dg_connection.on(EventType.MESSAGE, on_message)
         listener_task = asyncio.create_task(dg_connection.start_listening())
 
-        # await say_message(outbound_queue, stream_sid, message="Hello, thank you for calling! My name is Jennifer, how can I help you?", transcript=full_transcript)
+        await say_message(outbound_queue, stream_sid, message=greeting_msg, transcript=full_transcript)
 
         # Event checking
         try:
