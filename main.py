@@ -224,6 +224,7 @@ async def websocket_endpoint(websocket: WebSocket):
     - Zero Markdown Formatting: Do not use bold, italics, bullet points, or numbered lists in your text outputs. Your text output must be completely raw, fluid prose so the text-to-speech engine reads it naturally.
     - Pronunciation Formatting: Do not use symbols. Use words like "dollars" instead of "$" and "percent" instead of "%".
     - Barge-In Grace: The representative can interrupt you at any time. If they do, stop speaking immediately and address their input.
+    - You will never procounce an email, except for the domain name. Always spell out the section of the email before "@"
     """
 
     # We will use a queue to assure we are always able to listen and send
@@ -285,7 +286,7 @@ async def websocket_endpoint(websocket: WebSocket):
     # This tool will schedule a 30 minute meeting
     def schedule_event_tool(
         start: str,
-        name: str,
+        full_name: str,
         email: str
     ) -> str:
         """
@@ -298,14 +299,14 @@ async def websocket_endpoint(websocket: WebSocket):
 
         ARGS:
         start: The date and time of the meeting to be scheduled: YYYY-MM-DDTHH-MM-SSZ relative from the UTC timezone
-        name: The full name of the customer (First and Last) correctly spelled
+        full_name: The full name of the customer (First and Last) correctly spelled. Ask explicitely for last name
         email: The customer's email address that you have confirmed
 
         SPECIAL INSTRUCTIONS:
         Before attempting to call this tool, repeat the customer's information make to them by spelling each item out and after confirming call the tool.
         """
 
-        response: dict = cal_lib.schedule_event(event_id="6053276", start=start, name=name, phone=from_phone, email=email)
+        response: dict = cal_lib.schedule_event(event_id="6053276", start=start, name=full_name, phone=from_phone, email=email)
 
         if response["status"] != "success":
             return "Unable to schedule the event requested, an error has occured"
