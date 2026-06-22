@@ -183,7 +183,7 @@ async def websocket_endpoint(websocket: WebSocket):
     from_phone = custom_params.get("from_phone", "N/A")
 
     # The booked event's id
-    event_uid: str | None = None
+    event_uid: list[str] = []
 
     # initialize the time context
     now = datetime.now(ZoneInfo("America/Chicago"))
@@ -284,14 +284,13 @@ async def websocket_endpoint(websocket: WebSocket):
         A caller may only schedule one meeting per call.
         You should not ask for a caller's phone number for this.
         """
-        global event_uid
 
         response: dict = cal_lib.schedule_event(event_id="6053276", start=start, name=full_name, phone=from_phone, email=email)
 
         if response["status"] != "success":
             return "Unable to schedule the event requested, an error has occured"
 
-        event_uid = response["data"]["uid"]
+        event_uid[0] = response["data"]["uid"]
 
         print(event_uid)
 
@@ -479,8 +478,9 @@ async def websocket_endpoint(websocket: WebSocket):
             # Test Transcript recording
             print(full_transcript)
 
-            if event_uid:
-                cal_lib.add_transcript_to_description(full_transcript, event_uid)
+            print(event_uid)
+            if event_uid[0]:
+                cal_lib.add_transcript_to_description(full_transcript, event_uid[0])
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
