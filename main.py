@@ -189,7 +189,8 @@ async def websocket_endpoint(websocket: WebSocket):
 
     conversation_context: list[types.ContentOrDict] = [
         types.Content(role="user", parts=[types.Part.from_text(text=time_context)]),
-        types.Content(role="Model", parts=[types.Part.from_text(text="Now I know the current date and time and can use it to schedule meetings.")])
+        types.Content(role="user", parts=[types.Part.from_text(text="Your creator's name is Marc Miller, he is a software developer that is attending Purdue university for his undergrad")]),
+        types.Content(role="model", parts=[types.Part.from_text(text="Now I know the current date and time and can use it to schedule meetings. I also know who I am answering this call on behalf of.")])
     ]
 
     with open("./system_prompt.md", "r") as file:
