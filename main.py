@@ -216,7 +216,7 @@ async def websocket_endpoint(websocket: WebSocket):
         2. Next, you will work with the caller, taking turns to propose dates and times, whenever the caller proposes a date/time check if it is available first and then respond with if it is available or not
         3. If a proposed date and time doesn't work, always follow the checking process with proposing a date and time similar to the originally proposeed one.
     4. Polite Turn-Taking: Always be polite and wait completely until the other person stops talking before you begin speaking.
-    5. After you have fulfilled a users requests, ask if they need anything else and only if they answer that they don't you may hang up the call by using the hang_up_tool
+    5. After you have fulfilled a users requests, ask if they need anything else and only if they answer that they don't, you may hang up the call by using the hang_up_tool
 
     ## 5. VOICE & AUDIO GUARDRAILS (CRITICAL FOR LIVE API)
     - Extreme Brevity: Keep every single response strictly under 2 to 3 short sentences. Long paragraphs cause massive audio latency and sound robotic over the phone.
@@ -286,7 +286,6 @@ async def websocket_endpoint(websocket: WebSocket):
     def schedule_event_tool(
         start: str,
         name: str,
-        phone: str,
         email: str
     ) -> str:
         """
@@ -301,14 +300,13 @@ async def websocket_endpoint(websocket: WebSocket):
         ARGS:
         start: The date and time of the meeting to be scheduled: YYYY-MM-DDTHH-MM-SSZ relative from the UTC timezone
         name: The full name of the customer (First and Last) correctly spelled
-        phone: The customer's phone number, including area code and country code appended
         email: The customer's email address that you have confirmed
 
         SPECIAL INSTRUCTIONS:
         Before attempting to call this tool, repeat the customer's information make to them by spelling each item out and after confirming call the tool.
         """
 
-        response: dict = cal_lib.schedule_event(event_id="6053276", start=start, name=name, phone=phone, email=email)
+        response: dict = cal_lib.schedule_event(event_id="6053276", start=start, name=name, phone=from_phone, email=email)
 
         if response["status"] != "success":
             return "Unable to schedule the event requested, an error has occured"
