@@ -68,7 +68,7 @@ async def say_message(queue: asyncio.Queue, stream_sid, message: str, transcript
 
     # create an audio stream
     audio_stream = elevenlabs_client.text_to_speech.convert(
-        voice_id="4hdsj8ptPYDuDJIlFNOe", # This is "Rachel", a standard ElevenLabs voice
+        voice_id="CaJGGnGTRWSly2yoC75U",
         output_format="ulaw_8000",
         text=message,
         model_id="eleven_flash_v2_5", # The fastest model for real-time
