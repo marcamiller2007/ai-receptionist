@@ -280,6 +280,7 @@ async def websocket_endpoint(websocket: WebSocket):
         Before attempting to call this tool, repeat the customer's information make to them by spelling each item out and after confirming call the tool.
         A caller may only schedule one meeting per call.
         """
+        global event_uid
 
         response: dict = cal_lib.schedule_event(event_id="6053276", start=start, name=full_name, phone=from_phone, email=email)
 
@@ -435,7 +436,7 @@ async def websocket_endpoint(websocket: WebSocket):
         dg_connection.on(EventType.MESSAGE, on_message)
         listener_task = asyncio.create_task(dg_connection.start_listening())
 
-        await say_message(outbound_queue, stream_sid, message="Hello, thank you for calling! My name is Jennifer, how can I help you?", transcript=full_transcript)
+        # await say_message(outbound_queue, stream_sid, message="Hello, thank you for calling! My name is Jennifer, how can I help you?", transcript=full_transcript)
 
         # Event checking
         try:
