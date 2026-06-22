@@ -40,6 +40,23 @@ def schedule_event(
     print(response)
     return response.json()
 
+def add_transcript_to_description(trans: list[str], uid: str):
+    url = f"https://api.cal.com/v1/bookings/{uid}"
+
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": authorization
+    }
+
+    # We format the description to look clean on the calendar
+    payload = {
+        "description": f"AI Booked Appointment.\n\n--- CALL TRANSCRIPT ---\n{trans}"
+    }
+
+    response = requests.patch(url, json=payload, headers=headers)
+
+    print(response)
+
 def get_schedule(
     day: str = "N/A",
     start: str = "N/A",
