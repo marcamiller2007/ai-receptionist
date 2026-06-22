@@ -295,7 +295,6 @@ async def websocket_endpoint(websocket: WebSocket):
         1. Only call this tool AFTER you have confirmed all of the following information:
             - The date and time of a meeting has been confirmed through the use of the check_schedule_tool
             - The correct spelling of the customers name and email
-            - What the customer's phone number is
 
         ARGS:
         start: The date and time of the meeting to be scheduled: YYYY-MM-DDTHH-MM-SSZ relative from the UTC timezone
