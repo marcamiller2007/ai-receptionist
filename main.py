@@ -368,7 +368,7 @@ async def websocket_endpoint(websocket: WebSocket):
     # END TOOLS
 
     chat_session = gemini_client.aio.chats.create(
-        model="gemini-3.5-flash",
+        model="gemini-2.5-flash",
         history=conversation_context,
         config=types.GenerateContentConfig(
             system_instruction=system_prompt,
