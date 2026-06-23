@@ -71,7 +71,7 @@ async def say_message(queue: asyncio.Queue, stream_sid, message: str, transcript
         voice_id="cNYrMw9glwJZXR8RwbuR",
         output_format="ulaw_8000",
         text=message,
-        model_id="eleven_flash_v2_5", # The fastest model for real-time
+        model_id="eleven_flash_v3_5", # The fastest model for real-time
     )
 
     async for chunk in audio_stream:
