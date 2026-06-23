@@ -479,7 +479,7 @@ async def websocket_endpoint(websocket: WebSocket):
             print(full_transcript)
 
             print(event_uid)
-            if event_uid[0]:
+            if len(event_uid) != 0:
                 cal_lib.add_transcript_to_description(full_transcript, event_uid[0])
 
 if __name__ == "__main__":
