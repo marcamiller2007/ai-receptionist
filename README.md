@@ -9,9 +9,7 @@ A fully asynchronous, real-time conversational AI voice agent designed to Receiv
 * **Seamless Human Barge-in**: The system instantly detects human interruption (`StartOfTurn`) and clears the Twilio audio queue, allowing the user to seamlessly talk over the AI.
 * **Real-Time Audio Streaming**: Employs ElevenLabs' `AsyncElevenLabs` generator to stream synthesized audio chunks to Twilio the exact millisecond they are generated, eliminating conversational lag.
 * **High-Performance Database Pooling**: Uses `asyncpg` and FastAPI lifespan contexts to manage a persistent pool of PostgreSQL connections, allowing the AI to save data mid-conversation with zero latency.
-* **Agentic Tool Calling**: Gemini 2.5 Flash dynamically triggers asynchronous Python tools mid-conversation:
-  * `push_data_tool`: Automatically extracts pricing and procedure data and pushes it to PostgreSQL.
-  * `hang_up_tool`: Gracefully ends the call using Twilio `mark` events after completing the objective.
+* **Agentic Tool Calling**: Gemini 2.5 Flash dynamically triggers asynchronous Python tools mid-conversation.
 
 ## 🛠️ Technology Stack
 
