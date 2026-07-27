@@ -20,7 +20,6 @@ A fully asynchronous, real-time conversational AI voice agent designed to Receiv
 * **Speech-to-Text (Ears)**: Deepgram (`listen.v2`, Flux model)
 * **LLM (Brain)**: Google GenAI (`gemini-2.5-flash`, `.aio` asynchronous client)
 * **Text-to-Speech (Mouth)**: ElevenLabs (`AsyncElevenLabs`, `eleven_flash_v2_5` streaming model)
-* **Database**: PostgreSQL (`asyncpg` for raw async SQL execution)
 
 ## 📋 Prerequisites
 
@@ -29,7 +28,6 @@ To run this agent, you will need active accounts and API keys for the following 
 2. [Google AI Studio (Gemini)](https://aistudio.google.com/)
 3. [ElevenLabs](https://elevenlabs.io/)
 4. [Twilio](https://twilio.com/) (with an active phone number)
-5. **PostgreSQL Database** (Local install, or cloud-hosted via Supabase, AWS, Neon, etc.)
 6. [Ngrok](https://ngrok.com/) (for local tunneling and testing)
 
 ## ⚙️ Installation & Setup
@@ -78,7 +76,7 @@ DATABASE_URL=postgresql://username:password@hostname:5432/database_name
    * Ensure it is set to `HTTP POST`.
 
 4. **Make the Call**:
-   Dial your Twilio phone number. You will hear Twilio bridge the connection, and Janet Williams will begin speaking!
+   Dial your Twilio phone number. You will hear Twilio bridge the connection, and Jennifer Marsh will begin speaking!
 
 ## 🧠 Architecture Overview (The Main Loop)
 
@@ -95,6 +93,5 @@ DATABASE_URL=postgresql://username:password@hostname:5432/database_name
 ## 🐛 Troubleshooting
 
 * **Silent Errors (Deepgram)**: If the call bridges but there is no response, ensure your `on_message` handler expects a single `message` argument and safely uses `.get("transcript", "")` as the payload is a dictionary.
-* **Database Freezes**: Ensure you are using `await connection.execute(...)` inside your tools. Synchronous database queries will block the event loop and cause the call to drop audio.
 * **Audio Stuttering**: Ensure your Uvicorn server isn't running other synchronous blocking tasks. The entire pipeline must remain `async`.
 * **503 Gemini Errors**: Google endpoints can occasionally experience high traffic. The code handles this gracefully, but if persistent, swap the model to an older version (e.g., `gemini-2.0-flash`).
